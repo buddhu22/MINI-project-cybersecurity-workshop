@@ -1,0 +1,11 @@
+timestamp,module,event_type,status,duration_ms
+2026-10-07 10:01:00,Login,Login,Success,120
+2026-10-07 10:02:00,Login,Login,Success,150
+2026-10-07 10:03:00,Asset,Search,Success,230
+2026-10-07 10:04:00,Asset,Search,Success,210
+2026-10-07 10:05:00,Checkout,Checkout,Error,850
+2026-10-07 10:06:00,Checkout,Checkout,Error,920
+2026-10-07 10:07:00,Reports,Generate,Success,310
+2026-10-07 10:08:00,Reports,Generate,Success,280
+2026-10-07 10:09:00,Checkout,Checkout,Error,780
+2026-10-07 10:10:00,Login,Login,Error,180
