@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lab Activity Monitor — Analytics & Security Dashboard</title>
-  <meta name="description" content="Lab Activity Monitor - Application Activity Analytics & Security Control Dashboard" />
+  <title>Lab Activity Monitor — Enterprise Security Analytics</title>
+  <meta name="description" content="Lab Activity Monitor — Operational Health & Security Telemetry Dashboard" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="/static/style.css" />
 </head>
@@ -14,10 +14,14 @@
 
 <div class="app-layout">
 
-  <!-- ===== SIDEBAR ===== -->
+  <!-- ===== SIDEBAR NAVIGATION ===== -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <span class="sidebar-logo">🛡️</span>
+      <div class="brand-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
       <div class="sidebar-brand-text">
         <span class="brand-title">Lab Monitor</span>
         <span class="brand-sub">Security Analytics</span>
@@ -26,37 +30,44 @@
 
     <nav class="sidebar-nav">
       <a href="#section-dashboard" class="nav-item active" data-target="section-dashboard">
-        <span class="nav-icon">📊</span>
-        <span>Dashboard</span>
+        <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Overview</span>
       </a>
       <a href="#section-flagged" class="nav-item" data-target="section-flagged">
-        <span class="nav-icon">🚩</span>
+        <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
         <span>Flagged Modules</span>
       </a>
       <a href="#section-module-analysis" class="nav-item" data-target="section-module-analysis">
-        <span class="nav-icon">🧩</span>
+        <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         <span>Module Analysis</span>
       </a>
       <a href="#section-log-explorer" class="nav-item" data-target="section-log-explorer">
-        <span class="nav-icon">🔎</span>
-        <span>Log Explorer</span>
+        <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Activity Logs</span>
       </a>
       <a href="#section-charts" class="nav-item" data-target="section-charts">
-        <span class="nav-icon">📈</span>
+        <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
         <span>Analytics Charts</span>
       </a>
       <a href="#section-audit-records" class="nav-item" data-target="section-audit-records">
-        <span class="nav-icon">📝</span>
+        <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
         <span>Audit Records</span>
       </a>
       <a href="#section-security" class="nav-item" data-target="section-security">
-        <span class="nav-icon">🔒</span>
-        <span>Security & Testing</span>
+        <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Security Controls</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
-      <p class="sidebar-info">Cybersecurity Workshop &copy; 2026</p>
+      <div class="system-status-box">
+        <div class="status-indicator-line">
+          <span class="dot-online"></span>
+          <span class="status-label-text">Data source connected</span>
+        </div>
+        <div class="meta-item">Source: <code>activity_logs.csv</code></div>
+        <div class="meta-item">Version: <span>1.0.0</span></div>
+      </div>
     </div>
   </aside>
 
@@ -66,10 +77,15 @@
     <!-- ===== TOP HEADER ===== -->
     <header class="top-header">
       <div class="header-left">
-        <h1 class="project-name">Lab Activity Monitor</h1>
-        <p class="project-desc">Application Activity Analytics & Security Control Dashboard</p>
+        <h1 class="page-title">Overview</h1>
+        <p class="page-subtitle">Application activity telemetry and operational health telemetry</p>
       </div>
       <div class="header-right">
+        <span class="last-updated-text" id="last-updated-time">Updated just now</span>
+        <button id="refresh-btn" class="btn btn-secondary btn-compact" title="Reload activity dataset">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <span>Refresh Data</span>
+        </button>
         <div id="status-badge" class="status-badge loading">Connecting…</div>
       </div>
     </header>
@@ -80,89 +96,82 @@
       <div id="error-banner" class="alert alert-error hidden"></div>
       <div id="duplicate-warning" class="alert alert-warning hidden"></div>
 
-      <!-- ===== SECTION: DASHBOARD KPI CARDS ===== -->
+      <!-- ===== SECTION: EXECUTIVE KPI OVERVIEW ===== -->
       <section id="section-dashboard" class="dashboard-section">
-        <div class="section-title-wrapper">
-          <h2>📊 Executive Overview</h2>
-          <span class="section-tag">Real-time Metrics</span>
-        </div>
-
         <div class="metrics-grid">
           <div class="metric-card" id="card-total-events">
             <div class="metric-header">
-              <span class="metric-label">Total Events</span>
-              <span class="metric-icon">🗂️</span>
+              <span class="metric-label">TOTAL EVENTS</span>
             </div>
             <div class="metric-value" id="val-total-events">—</div>
-            <div class="metric-sub">Total recorded activity logs</div>
+            <div class="metric-sub">Across all monitored modules</div>
           </div>
 
           <div class="metric-card" id="card-total-errors">
             <div class="metric-header">
-              <span class="metric-label">Total Errors</span>
-              <span class="metric-icon">❌</span>
+              <span class="metric-label">TOTAL ERRORS</span>
             </div>
-            <div class="metric-value" id="val-total-errors">—</div>
+            <div class="metric-value text-red" id="val-total-errors">—</div>
             <div class="metric-sub">Error status logs count</div>
           </div>
 
           <div class="metric-card" id="card-error-rate">
             <div class="metric-header">
-              <span class="metric-label">Overall Error Rate</span>
-              <span class="metric-icon">📉</span>
+              <span class="metric-label">OVERALL ERROR RATE</span>
             </div>
-            <div class="metric-value" id="val-error-rate">—</div>
-            <div class="metric-sub">Percentage of error events</div>
-          </div>
-
-          <div class="metric-card" id="card-flagged-modules">
-            <div class="metric-header">
-              <span class="metric-label">Flagged Modules</span>
-              <span class="metric-icon">🚩</span>
-            </div>
-            <div class="metric-value" id="val-flagged-modules">—</div>
-            <div class="metric-sub">Modules exceeding 5% threshold</div>
+            <div class="metric-value text-amber" id="val-error-rate">—</div>
+            <div class="metric-sub" id="val-error-rate-sub">Percentage of error events</div>
           </div>
 
           <div class="metric-card" id="card-avg-duration">
             <div class="metric-header">
-              <span class="metric-label">Avg Duration</span>
-              <span class="metric-icon">⏱️</span>
+              <span class="metric-label">AVERAGE DURATION</span>
             </div>
             <div class="metric-value" id="val-avg-duration">—</div>
             <div class="metric-sub">Average execution latency</div>
+          </div>
+
+          <div class="metric-card" id="card-flagged-modules">
+            <div class="metric-header">
+              <span class="metric-label">FLAGGED MODULES</span>
+            </div>
+            <div class="metric-value" id="val-flagged-modules">—</div>
+            <div class="metric-sub">Modules exceeding 5.0% threshold</div>
           </div>
         </div>
       </section>
 
       <!-- ===== SECTION: FLAGGED MODULES ===== -->
       <section id="section-flagged" class="dashboard-section">
-        <div class="section-card flagged-container">
-          <div class="section-header">
+        <div class="panel-card border-flagged-panel">
+          <div class="panel-header">
             <div>
-              <h2 class="section-title">🚩 Flagged Modules</h2>
-              <p class="section-subtitle">Modules exceeding the <strong>5.0% Error Rate Threshold</strong> requiring further review.</p>
+              <h2 class="panel-title">Modules Requiring Attention</h2>
+              <p class="panel-subtitle">Application components with error rates exceeding the defined 5.0% threshold.</p>
             </div>
-            <span class="badge badge-warning">Threshold: > 5%</span>
+            <span class="badge badge-warning">Threshold: &gt; 5.0%</span>
           </div>
 
           <div id="flagged-modules-list" class="flagged-cards-grid">
             <!-- Dynamically populated -->
           </div>
 
-          <div class="info-note">
-            ℹ️ <strong>Security Note:</strong> "Flagged" status indicates a high error frequency requiring investigation. It does <em>NOT</em> imply an active cyber attack has been confirmed.
+          <div class="info-callout">
+            <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div>
+              <strong>Security Clarification:</strong> Flagged status indicates an unusually high error pattern requiring investigation. It does <em>not</em> confirm an active security attack.
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- ===== SECTION: MODULE ANALYSIS ===== -->
+      <!-- ===== SECTION: MODULE ANALYSIS TABLE ===== -->
       <section id="section-module-analysis" class="dashboard-section">
-        <div class="section-card">
-          <div class="section-header">
+        <div class="panel-card">
+          <div class="panel-header">
             <div>
-              <h2 class="section-title">🧩 Module Analysis</h2>
-              <p class="section-subtitle">Detailed breakdown of activity metrics grouped by application module</p>
+              <h2 class="panel-title">Module Performance Analysis</h2>
+              <p class="panel-subtitle">Detailed breakdown of activity metrics grouped by application module</p>
             </div>
           </div>
 
@@ -170,13 +179,13 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Module</th>
-                  <th>Total Events</th>
-                  <th>Total Errors</th>
-                  <th>Error Rate (%)</th>
-                  <th>Average Duration</th>
-                  <th>Median Duration</th>
-                  <th>Status</th>
+                  <th>MODULE</th>
+                  <th>EVENTS</th>
+                  <th>ERRORS</th>
+                  <th>ERROR RATE</th>
+                  <th>AVG DURATION</th>
+                  <th>MEDIAN DURATION</th>
+                  <th>STATUS</th>
                 </tr>
               </thead>
               <tbody id="module-body">
@@ -187,52 +196,71 @@
         </div>
       </section>
 
-      <!-- ===== SECTION: LOG EXPLORER ===== -->
-      <section id="section-log-explorer" class="dashboard-section">
-        <div class="section-card">
-          <div class="section-header">
-            <div>
-              <h2 class="section-title">🔎 Log Explorer</h2>
-              <p class="section-subtitle">Search and filter system logs. Applying filters creates a safe audit record.</p>
+      <!-- ===== SECTION: CHARTS ===== -->
+      <section id="section-charts" class="dashboard-section">
+        <div class="charts-grid">
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3 class="panel-title-sm">Module Error Distribution (%)</h3>
             </div>
-            <span id="filtered-count-badge" class="badge">0 records</span>
+            <div class="chart-canvas-container">
+              <canvas id="error-rate-chart"></canvas>
+            </div>
           </div>
 
-          <!-- Filters Form -->
-          <div class="filters-grid">
-            <div class="filter-group">
-              <label for="module-filter" class="filter-label">Module</label>
-              <select id="module-filter" class="filter-select">
-                <option value="All">All</option>
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3 class="panel-title-sm">Average Duration Latency (ms)</h3>
+            </div>
+            <div class="chart-canvas-container">
+              <canvas id="duration-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: LOG EXPLORER ===== -->
+      <section id="section-log-explorer" class="dashboard-section">
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Activity Log Explorer</h2>
+              <p class="panel-subtitle">Filter system activity records. Explicitly applying filters records a query audit log.</p>
+            </div>
+            <span id="filtered-count-badge" class="badge badge-neutral">0 records</span>
+          </div>
+
+          <!-- Filters Bar -->
+          <div class="filter-toolbar">
+            <div class="filter-field">
+              <label for="search-input" class="filter-label">SEARCH LOGS</label>
+              <input type="text" id="search-input" class="input-control" placeholder="Search keyword..." />
+            </div>
+
+            <div class="filter-field">
+              <label for="module-filter" class="filter-label">MODULE</label>
+              <select id="module-filter" class="select-control">
+                <option value="All">All Modules</option>
               </select>
             </div>
 
-            <div class="filter-group">
-              <label for="status-filter" class="filter-label">Status</label>
-              <select id="status-filter" class="filter-select">
-                <option value="All">All</option>
+            <div class="filter-field">
+              <label for="status-filter" class="filter-label">STATUS</label>
+              <select id="status-filter" class="select-control">
+                <option value="All">All Statuses</option>
               </select>
             </div>
 
-            <div class="filter-group">
-              <label for="event-filter" class="filter-label">Event Type</label>
-              <select id="event-filter" class="filter-select">
-                <option value="All">All</option>
+            <div class="filter-field">
+              <label for="event-filter" class="filter-label">EVENT TYPE</label>
+              <select id="event-filter" class="select-control">
+                <option value="All">All Events</option>
               </select>
-            </div>
-
-            <div class="filter-group search-group">
-              <label for="search-input" class="filter-label">Search</label>
-              <input type="text" id="search-input" class="filter-input" placeholder="Keyword search..." />
             </div>
 
             <div class="filter-actions">
-              <button id="apply-filter-btn" class="btn btn-primary">
-                <span>🔍 Apply Filters</span>
-              </button>
-              <button id="reset-filter-btn" class="btn btn-secondary">
-                <span>🔄 Reset</span>
-              </button>
+              <button id="apply-filter-btn" class="btn btn-primary">Apply Filters</button>
+              <button id="reset-filter-btn" class="btn btn-secondary">Reset</button>
             </div>
           </div>
 
@@ -241,11 +269,11 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Timestamp</th>
-                  <th>Module</th>
-                  <th>Event Type</th>
-                  <th>Status</th>
-                  <th>Duration (ms)</th>
+                  <th>TIMESTAMP</th>
+                  <th>MODULE</th>
+                  <th>EVENT TYPE</th>
+                  <th>STATUS</th>
+                  <th>DURATION</th>
                 </tr>
               </thead>
               <tbody id="filtered-body">
@@ -256,53 +284,25 @@
         </div>
       </section>
 
-      <!-- ===== SECTION: CHARTS ===== -->
-      <section id="section-charts" class="dashboard-section">
-        <div class="section-card">
-          <div class="section-header">
-            <div>
-              <h2 class="section-title">📊 Analytics Visualizations</h2>
-              <p class="section-subtitle">Module-level error distribution and performance latency</p>
-            </div>
-          </div>
-
-          <div class="charts-grid">
-            <div class="chart-box">
-              <h3 class="chart-title">Chart 1: Module-wise Error Rate (%)</h3>
-              <div class="chart-canvas-container">
-                <canvas id="error-rate-chart"></canvas>
-              </div>
-            </div>
-
-            <div class="chart-box">
-              <h3 class="chart-title">Chart 2: Module-wise Average Duration (ms)</h3>
-              <div class="chart-canvas-container">
-                <canvas id="duration-chart"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- ===== SECTION: AUDIT RECORDS ===== -->
       <section id="section-audit-records" class="dashboard-section">
-        <div class="section-card">
-          <div class="section-header">
+        <div class="panel-card">
+          <div class="panel-header">
             <div>
-              <h2 class="section-title">📝 Audit Records</h2>
-              <p class="section-subtitle">Minimal non-sensitive audit log of user query filters</p>
+              <h2 class="panel-title">Query Audit Activity</h2>
+              <p class="panel-subtitle">Audit records capture report-filter actions without storing sensitive information.</p>
             </div>
-            <span class="audit-note">Saved in <code>data/audit_logs.csv</code></span>
+            <span class="audit-note">Storage: <code>data/audit_logs.csv</code></span>
           </div>
 
           <div class="table-wrapper">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Timestamp</th>
-                  <th>Module Filter</th>
-                  <th>Status Filter</th>
-                  <th>Records Found</th>
+                  <th>TIMESTAMP</th>
+                  <th>MODULE FILTER</th>
+                  <th>STATUS FILTER</th>
+                  <th>RECORDS MATCHED</th>
                 </tr>
               </thead>
               <tbody id="audit-body">
@@ -313,20 +313,20 @@
         </div>
       </section>
 
-      <!-- ===== SECTION: SECURITY & TESTING ===== -->
+      <!-- ===== SECTION: SECURITY CONTROLS ===== -->
       <section id="section-security" class="dashboard-section">
-        <div class="section-card">
-          <div class="section-header">
+        <div class="panel-card">
+          <div class="panel-header">
             <div>
-              <h2 class="section-title">🔒 Security & Validation Controls</h2>
-              <p class="section-subtitle">Summary of security controls implemented in the backend</p>
+              <h2 class="panel-title">Security & Input Validation Controls</h2>
+              <p class="panel-subtitle">Operational guardrails enforcing data integrity and privacy</p>
             </div>
           </div>
 
           <div class="security-controls-grid">
             <div class="security-card">
               <div class="sec-card-header">
-                <span class="sec-icon">🛡️</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 <h4>1. Safe File Loading</h4>
               </div>
               <p>Exceptions handled gracefully. Users receive sanitized messages without exposing raw system tracebacks or stack dumps.</p>
@@ -334,23 +334,23 @@
 
             <div class="security-card">
               <div class="sec-card-header">
-                <span class="sec-icon">📋</span>
-                <h4>2. Schema & Field Validation</h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="13" y2="16"/></svg>
+                <h4>2. Schema Validation</h4>
               </div>
               <p>Ensures required columns exist (<code>timestamp</code>, <code>module</code>, <code>event_type</code>, <code>status</code>, <code>duration_ms</code>).</p>
             </div>
 
             <div class="security-card">
               <div class="sec-card-header">
-                <span class="sec-icon">🔢</span>
-                <h4>3. Data Type Validation</h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                <h4>3. Type Validation</h4>
               </div>
               <p>Coerces numeric fields and parses ISO timestamps. Rejects corrupted rows with invalid date formats or malformed types.</p>
             </div>
 
             <div class="security-card">
               <div class="sec-card-header">
-                <span class="sec-icon">🚫</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
                 <h4>4. Duration Boundary Check</h4>
               </div>
               <p>Enforces <code>duration_ms &ge; 0</code>. Negative durations (physically impossible) are rejected as corrupted or tampered data.</p>
@@ -358,16 +358,16 @@
 
             <div class="security-card">
               <div class="sec-card-header">
-                <span class="sec-icon">⚠️</span>
-                <h4>5. Duplicate Row Warnings</h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <h4>5. Duplicate Row Check</h4>
               </div>
               <p>Detects exact duplicate entries and triggers a warning banner without halting execution or exposing sensitive logs.</p>
             </div>
 
             <div class="security-card">
               <div class="sec-card-header">
-                <span class="sec-icon">📝</span>
-                <h4>6. Privacy-First Audit Logging</h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <h4>6. Privacy-First Audit Logs</h4>
               </div>
               <p>Logs only metadata (timestamps and filter criteria). No passwords, API keys, IP addresses, or personal identifiers are stored.</p>
             </div>
@@ -378,7 +378,7 @@
     </main>
 
     <footer class="main-footer">
-      <p>Lab Activity Monitor &mdash; Security Analytics &copy; 2026</p>
+      <p>Lab Activity Monitor &mdash; Internal Enterprise Operations &copy; 2026</p>
     </footer>
 
   </div>

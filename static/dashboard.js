@@ -1,24 +1,24 @@
 /* ========================================================
-   Lab Activity Monitor — JavaScript Controller
-   Pure vanilla JS for UI rendering, filtering, and charts.
+   Lab Activity Monitor — Enterprise JavaScript Controller
+   Pure vanilla JS for UI rendering, dynamic filtering & charts.
    ======================================================== */
 
 'use strict';
 
-// Chart instances
+// Global Chart Instances
 let errorRateChartInstance = null;
 let durationChartInstance = null;
 
-// Global state cache
+// Global Cache
 let rawDataCache = null;
 
-// Utility functions
+// DOM Helper functions
 function $(id) { return document.getElementById(id); }
 function show(id) { $(id).classList.remove('hidden'); }
 function hide(id) { $(id).classList.add('hidden'); }
 function setText(id, text) { $(id).textContent = text; }
 
-// Status badge helper
+// Status Tag Generator
 function getStatusTag(status, type = 'status') {
   if (type === 'status') {
     return status === 'Success'
@@ -33,11 +33,18 @@ function getStatusTag(status, type = 'status') {
   return status;
 }
 
-// Set top header status
+// Connection Status Badge
 function setConnectionStatus(state, text) {
   const badge = $('status-badge');
   badge.className = `status-badge ${state}`;
   badge.textContent = text;
+}
+
+// Format Time Helper
+function updateLastRefreshedTime() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  setText('last-updated-time', `Updated ${timeStr}`);
 }
 
 // ---------------------------------------------------------
@@ -70,7 +77,7 @@ function populateDropdown(id, items, defaultVal = 'All') {
   items.forEach(item => {
     const opt = document.createElement('option');
     opt.value = item;
-    opt.textContent = item;
+    opt.textContent = item === 'All' ? (id === 'module-filter' ? 'All Modules' : id === 'status-filter' ? 'All Statuses' : 'All Events') : item;
     if (item === currentVal) opt.selected = true;
     select.appendChild(opt);
   });
@@ -87,7 +94,7 @@ async function fetchDashboardData() {
     const data = await response.json();
 
     if (!response.ok) {
-      $('error-banner').textContent = data.error || 'Failed to load activity logs.';
+      $('error-banner').textContent = data.error || 'Failed to load activity logs data.';
       show('error-banner');
       setConnectionStatus('error', 'Error');
       return;
@@ -98,7 +105,7 @@ async function fetchDashboardData() {
 
     // Duplicate Warning
     if (data.duplicate_warning > 0) {
-      $('duplicate-warning').textContent = `Warning: ${data.duplicate_warning} duplicate row(s) detected in the activity log dataset.`;
+      $('duplicate-warning').textContent = `Notice: ${data.duplicate_warning} duplicate activity log row(s) detected in dataset.`;
       show('duplicate-warning');
     } else {
       hide('duplicate-warning');
@@ -109,34 +116,44 @@ async function fetchDashboardData() {
     setText('val-total-events', m.total_events);
     setText('val-total-errors', m.total_errors);
     setText('val-error-rate', `${m.error_rate}%`);
-    setText('val-flagged-modules', m.flagged_modules);
+    setText('val-error-rate-sub', `${m.total_errors} errors / ${m.total_events} events`);
     setText('val-avg-duration', `${m.avg_duration} ms`);
+    setText('val-flagged-modules', m.flagged_modules);
 
-    // 2. Flagged Modules Section
+    // Highlight Flagged Module KPI card if > 0
+    const cardFlagged = $('card-flagged-modules');
+    if (m.flagged_modules > 0) {
+      cardFlagged.querySelector('.metric-value').className = 'metric-value text-red';
+    } else {
+      cardFlagged.querySelector('.metric-value').className = 'metric-value';
+    }
+
+    // 2. Flagged Modules Cards
     renderFlaggedModules(data.module_stats);
 
     // 3. Module Analysis Table
     renderModuleAnalysisTable(data.module_stats);
 
-    // 4. Populate Dropdowns for Log Explorer
+    // 4. Dropdowns for Log Explorer
     populateDropdown('module-filter', data.modules);
     populateDropdown('status-filter', data.statuses);
     populateDropdown('event-filter', data.event_types);
 
-    // 5. Initial Filtered Table Render (No Audit Log Created Yet)
+    // 5. Initial Log Explorer Render (No Audit Log Created on Load)
     await filterLogs(false);
 
-    // 6. Audit Records Section Load
+    // 6. Audit Log Records Load
     await fetchAuditLogs();
 
-    // 7. Render Analytics Charts
+    // 7. Render Charts
     renderCharts(data.module_stats);
 
-    setConnectionStatus('live', 'System Live');
+    setConnectionStatus('live', 'Connected');
+    updateLastRefreshedTime();
 
   } catch (err) {
     console.error('Fetch error:', err);
-    $('error-banner').textContent = 'Unable to connect to Flask server. Please check backend status.';
+    $('error-banner').textContent = 'Unable to connect to analytics backend server. Please verify application status.';
     show('error-banner');
     setConnectionStatus('error', 'Offline');
   }
@@ -155,10 +172,10 @@ function renderFlaggedModules(moduleStats) {
     container.innerHTML = `
       <div class="flagged-card normal">
         <div class="flagged-card-header">
-          <span class="flagged-card-title">All Modules Healthy</span>
+          <span class="flagged-card-title">All Modules Normal</span>
           <span class="tag tag-normal">Normal</span>
         </div>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">No modules currently exceed the 5.0% error rate threshold.</p>
+        <div class="flagged-details">No modules currently exceed the 5.0% error rate threshold.</div>
       </div>`;
     return;
   }
@@ -172,8 +189,8 @@ function renderFlaggedModules(moduleStats) {
         <span class="tag tag-flagged">Flagged</span>
       </div>
       <div class="flagged-rate">${m.error_rate}% Error Rate</div>
-      <div style="font-size: 0.8rem; color: var(--text-muted);">
-        ${m.total_errors} errors out of ${m.total_events} total events. Avg Latency: ${m.average_duration_ms} ms.
+      <div class="flagged-details">
+        ${m.total_errors} error(s) / ${m.total_events} events &bull; Avg Latency: ${m.average_duration_ms} ms
       </div>
     `;
     container.appendChild(card);
@@ -191,11 +208,11 @@ function renderModuleAnalysisTable(moduleStats) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${item.module}</strong></td>
-      <td>${item.total_events}</td>
-      <td>${item.total_errors}</td>
-      <td>${item.error_rate}%</td>
-      <td>${item.average_duration_ms} ms</td>
-      <td>${item.median_duration_ms} ms</td>
+      <td class="td-mono">${item.total_events}</td>
+      <td class="td-mono">${item.total_errors}</td>
+      <td class="td-mono">${item.error_rate}%</td>
+      <td class="td-mono">${item.average_duration_ms} ms</td>
+      <td class="td-mono">${item.median_duration_ms} ms</td>
       <td>${getStatusTag(item.status, 'module-status')}</td>
     `;
     tbody.appendChild(tr);
@@ -203,7 +220,8 @@ function renderModuleAnalysisTable(moduleStats) {
 }
 
 // ---------------------------------------------------------
-// Log Explorer Filtering (Triggered manually or on reset)
+// Log Explorer Filtering
+// Audit record created ONLY when createAuditRecord === true
 // ---------------------------------------------------------
 async function filterLogs(createAuditRecord = false) {
   const moduleVal = $('module-filter').value || 'All';
@@ -230,16 +248,17 @@ async function filterLogs(createAuditRecord = false) {
     tbody.innerHTML = '';
 
     if (result.filtered_records.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No activity logs matched your filter criteria.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">No activity records matched the selected filter criteria.</td></tr>`;
     } else {
       result.filtered_records.forEach(row => {
         const tr = document.createElement('tr');
+        if (row.status === 'Error') tr.className = 'tr-error';
         tr.innerHTML = `
-          <td>${row.timestamp}</td>
+          <td class="td-mono">${row.timestamp}</td>
           <td><strong>${row.module}</strong></td>
           <td>${row.event_type}</td>
           <td>${getStatusTag(row.status, 'status')}</td>
-          <td>${row.duration_ms} ms</td>
+          <td class="td-mono">${row.duration_ms} ms</td>
         `;
         tbody.appendChild(tr);
       });
@@ -247,7 +266,7 @@ async function filterLogs(createAuditRecord = false) {
 
     setText('filtered-count-badge', `${result.records_count} records`);
 
-    // If an audit record was newly created via "Apply Filters", refresh the audit log section
+    // If an audit record was newly created, refresh audit table
     if (createAuditRecord && result.audit_record) {
       await fetchAuditLogs();
     }
@@ -269,7 +288,7 @@ async function fetchAuditLogs() {
     tbody.innerHTML = '';
 
     if (!logs || logs.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No audit records generated yet. Click "Apply Filters" to create one.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">No query audit records generated yet. Click "Apply Filters" to record an audit action.</td></tr>`;
       return;
     }
 
@@ -277,10 +296,10 @@ async function fetchAuditLogs() {
     logs.slice().reverse().forEach(row => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${row.timestamp}</td>
+        <td class="td-mono">${row.timestamp}</td>
         <td><span class="tag tag-normal">${row.module_filter}</span></td>
         <td><span class="tag tag-normal">${row.status_filter}</span></td>
-        <td><strong>${row.records_found}</strong></td>
+        <td class="td-mono"><strong>${row.records_found}</strong></td>
       `;
       tbody.appendChild(tr);
     });
@@ -298,7 +317,7 @@ function renderCharts(moduleStats) {
   const errorRates = moduleStats.map(m => m.error_rate);
   const avgDurations = moduleStats.map(m => m.average_duration_ms);
 
-  // Chart 1: Module-wise Error Rate
+  // Chart 1: Module Error Rate (%)
   const ctx1 = $('error-rate-chart').getContext('2d');
   if (errorRateChartInstance) errorRateChartInstance.destroy();
 
@@ -309,10 +328,10 @@ function renderCharts(moduleStats) {
       datasets: [{
         label: 'Error Rate (%)',
         data: errorRates,
-        backgroundColor: errorRates.map(r => r > 5 ? 'rgba(248, 81, 73, 0.85)' : 'rgba(63, 185, 80, 0.85)'),
-        borderColor: errorRates.map(r => r > 5 ? 'rgba(248, 81, 73, 1)' : 'rgba(63, 185, 80, 1)'),
-        borderWidth: 1.5,
-        borderRadius: 6
+        backgroundColor: errorRates.map(r => r > 5 ? 'rgba(239, 68, 68, 0.85)' : 'rgba(16, 185, 129, 0.85)'),
+        borderColor: errorRates.map(r => r > 5 ? 'rgba(239, 68, 68, 1)' : 'rgba(16, 185, 129, 1)'),
+        borderWidth: 1,
+        borderRadius: 4
       }]
     },
     options: {
@@ -327,13 +346,13 @@ function renderCharts(moduleStats) {
         }
       },
       scales: {
-        x: { grid: { color: 'rgba(48, 54, 61, 0.5)' }, ticks: { color: '#8b949e' } },
-        y: { grid: { color: 'rgba(48, 54, 61, 0.5)' }, ticks: { color: '#8b949e' }, beginAtZero: true }
+        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } } },
+        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 11 } }, beginAtZero: true }
       }
     }
   });
 
-  // Chart 2: Module-wise Average Duration
+  // Chart 2: Module Average Duration (ms)
   const ctx2 = $('duration-chart').getContext('2d');
   if (durationChartInstance) durationChartInstance.destroy();
 
@@ -344,10 +363,10 @@ function renderCharts(moduleStats) {
       datasets: [{
         label: 'Avg Duration (ms)',
         data: avgDurations,
-        backgroundColor: 'rgba(88, 166, 255, 0.85)',
-        borderColor: 'rgba(88, 166, 255, 1)',
-        borderWidth: 1.5,
-        borderRadius: 6
+        backgroundColor: 'rgba(59, 130, 246, 0.85)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 1,
+        borderRadius: 4
       }]
     },
     options: {
@@ -357,25 +376,30 @@ function renderCharts(moduleStats) {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: (ctx) => `Avg Duration: ${ctx.raw} ms`
+            label: (ctx) => `Avg Latency: ${ctx.raw} ms`
           }
         }
       },
       scales: {
-        x: { grid: { color: 'rgba(48, 54, 61, 0.5)' }, ticks: { color: '#8b949e' } },
-        y: { grid: { color: 'rgba(48, 54, 61, 0.5)' }, ticks: { color: '#8b949e' }, beginAtZero: true }
+        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } } },
+        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 11 } }, beginAtZero: true }
       }
     }
   });
 }
 
 // ---------------------------------------------------------
-// Event Listeners Initialization
+// Initialization & Event Listeners
 // ---------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
 
-  // Apply Filter Button -> Creates Audit Record!
+  // Refresh Button
+  $('refresh-btn').addEventListener('click', () => {
+    fetchDashboardData();
+  });
+
+  // Apply Filter Button -> Explicit Audit Creation!
   $('apply-filter-btn').addEventListener('click', () => {
     filterLogs(true);
   });
