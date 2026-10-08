@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab Activity Monitor — Analytics & Security Dashboard</title>
+  <meta name="description" content="Lab Activity Monitor - Application Activity Analytics & Security Control Dashboard" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-logo">🛡️</span>
+      <div class="sidebar-brand-text">
+        <span class="brand-title">Lab Monitor</span>
+        <span class="brand-sub">Security Analytics</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#section-dashboard" class="nav-item active" data-target="section-dashboard">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="#section-flagged" class="nav-item" data-target="section-flagged">
+        <span class="nav-icon">🚩</span>
+        <span>Flagged Modules</span>
+      </a>
+      <a href="#section-module-analysis" class="nav-item" data-target="section-module-analysis">
+        <span class="nav-icon">🧩</span>
+        <span>Module Analysis</span>
+      </a>
+      <a href="#section-log-explorer" class="nav-item" data-target="section-log-explorer">
+        <span class="nav-icon">🔎</span>
+        <span>Log Explorer</span>
+      </a>
+      <a href="#section-charts" class="nav-item" data-target="section-charts">
+        <span class="nav-icon">📈</span>
+        <span>Analytics Charts</span>
+      </a>
+      <a href="#section-audit-records" class="nav-item" data-target="section-audit-records">
+        <span class="nav-icon">📝</span>
+        <span>Audit Records</span>
+      </a>
+      <a href="#section-security" class="nav-item" data-target="section-security">
+        <span class="nav-icon">🔒</span>
+        <span>Security & Testing</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p class="sidebar-info">Cybersecurity Workshop &copy; 2026</p>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT AREA ===== -->
+  <div class="main-wrapper">
+
+    <!-- ===== TOP HEADER ===== -->
+    <header class="top-header">
+      <div class="header-left">
+        <h1 class="project-name">Lab Activity Monitor</h1>
+        <p class="project-desc">Application Activity Analytics & Security Control Dashboard</p>
+      </div>
+      <div class="header-right">
+        <div id="status-badge" class="status-badge loading">Connecting…</div>
+      </div>
+    </header>
+
+    <main class="content-container">
+
+      <!-- Alert Banners -->
+      <div id="error-banner" class="alert alert-error hidden"></div>
+      <div id="duplicate-warning" class="alert alert-warning hidden"></div>
+
+      <!-- ===== SECTION: DASHBOARD KPI CARDS ===== -->
+      <section id="section-dashboard" class="dashboard-section">
+        <div class="section-title-wrapper">
+          <h2>📊 Executive Overview</h2>
+          <span class="section-tag">Real-time Metrics</span>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card" id="card-total-events">
+            <div class="metric-header">
+              <span class="metric-label">Total Events</span>
+              <span class="metric-icon">🗂️</span>
+            </div>
+            <div class="metric-value" id="val-total-events">—</div>
+            <div class="metric-sub">Total recorded activity logs</div>
+          </div>
+
+          <div class="metric-card" id="card-total-errors">
+            <div class="metric-header">
+              <span class="metric-label">Total Errors</span>
+              <span class="metric-icon">❌</span>
+            </div>
+            <div class="metric-value" id="val-total-errors">—</div>
+            <div class="metric-sub">Error status logs count</div>
+          </div>
+
+          <div class="metric-card" id="card-error-rate">
+            <div class="metric-header">
+              <span class="metric-label">Overall Error Rate</span>
+              <span class="metric-icon">📉</span>
+            </div>
+            <div class="metric-value" id="val-error-rate">—</div>
+            <div class="metric-sub">Percentage of error events</div>
+          </div>
+
+          <div class="metric-card" id="card-flagged-modules">
+            <div class="metric-header">
+              <span class="metric-label">Flagged Modules</span>
+              <span class="metric-icon">🚩</span>
+            </div>
+            <div class="metric-value" id="val-flagged-modules">—</div>
+            <div class="metric-sub">Modules exceeding 5% threshold</div>
+          </div>
+
+          <div class="metric-card" id="card-avg-duration">
+            <div class="metric-header">
+              <span class="metric-label">Avg Duration</span>
+              <span class="metric-icon">⏱️</span>
+            </div>
+            <div class="metric-value" id="val-avg-duration">—</div>
+            <div class="metric-sub">Average execution latency</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: FLAGGED MODULES ===== -->
+      <section id="section-flagged" class="dashboard-section">
+        <div class="section-card flagged-container">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">🚩 Flagged Modules</h2>
+              <p class="section-subtitle">Modules exceeding the <strong>5.0% Error Rate Threshold</strong> requiring further review.</p>
+            </div>
+            <span class="badge badge-warning">Threshold: > 5%</span>
+          </div>
+
+          <div id="flagged-modules-list" class="flagged-cards-grid">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div class="info-note">
+            ℹ️ <strong>Security Note:</strong> "Flagged" status indicates a high error frequency requiring investigation. It does <em>NOT</em> imply an active cyber attack has been confirmed.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: MODULE ANALYSIS ===== -->
+      <section id="section-module-analysis" class="dashboard-section">
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">🧩 Module Analysis</h2>
+              <p class="section-subtitle">Detailed breakdown of activity metrics grouped by application module</p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Module</th>
+                  <th>Total Events</th>
+                  <th>Total Errors</th>
+                  <th>Error Rate (%)</th>
+                  <th>Average Duration</th>
+                  <th>Median Duration</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="module-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: LOG EXPLORER ===== -->
+      <section id="section-log-explorer" class="dashboard-section">
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">🔎 Log Explorer</h2>
+              <p class="section-subtitle">Search and filter system logs. Applying filters creates a safe audit record.</p>
+            </div>
+            <span id="filtered-count-badge" class="badge">0 records</span>
+          </div>
+
+          <!-- Filters Form -->
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label for="module-filter" class="filter-label">Module</label>
+              <select id="module-filter" class="filter-select">
+                <option value="All">All</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="status-filter" class="filter-label">Status</label>
+              <select id="status-filter" class="filter-select">
+                <option value="All">All</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="event-filter" class="filter-label">Event Type</label>
+              <select id="event-filter" class="filter-select">
+                <option value="All">All</option>
+              </select>
+            </div>
+
+            <div class="filter-group search-group">
+              <label for="search-input" class="filter-label">Search</label>
+              <input type="text" id="search-input" class="filter-input" placeholder="Keyword search..." />
+            </div>
+
+            <div class="filter-actions">
+              <button id="apply-filter-btn" class="btn btn-primary">
+                <span>🔍 Apply Filters</span>
+              </button>
+              <button id="reset-filter-btn" class="btn btn-secondary">
+                <span>🔄 Reset</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Log Explorer Table -->
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Module</th>
+                  <th>Event Type</th>
+                  <th>Status</th>
+                  <th>Duration (ms)</th>
+                </tr>
+              </thead>
+              <tbody id="filtered-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: CHARTS ===== -->
+      <section id="section-charts" class="dashboard-section">
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">📊 Analytics Visualizations</h2>
+              <p class="section-subtitle">Module-level error distribution and performance latency</p>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <div class="chart-box">
+              <h3 class="chart-title">Chart 1: Module-wise Error Rate (%)</h3>
+              <div class="chart-canvas-container">
+                <canvas id="error-rate-chart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-box">
+              <h3 class="chart-title">Chart 2: Module-wise Average Duration (ms)</h3>
+              <div class="chart-canvas-container">
+                <canvas id="duration-chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: AUDIT RECORDS ===== -->
+      <section id="section-audit-records" class="dashboard-section">
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">📝 Audit Records</h2>
+              <p class="section-subtitle">Minimal non-sensitive audit log of user query filters</p>
+            </div>
+            <span class="audit-note">Saved in <code>data/audit_logs.csv</code></span>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Module Filter</th>
+                  <th>Status Filter</th>
+                  <th>Records Found</th>
+                </tr>
+              </thead>
+              <tbody id="audit-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: SECURITY & TESTING ===== -->
+      <section id="section-security" class="dashboard-section">
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">🔒 Security & Validation Controls</h2>
+              <p class="section-subtitle">Summary of security controls implemented in the backend</p>
+            </div>
+          </div>
+
+          <div class="security-controls-grid">
+            <div class="security-card">
+              <div class="sec-card-header">
+                <span class="sec-icon">🛡️</span>
+                <h4>1. Safe File Loading</h4>
+              </div>
+              <p>Exceptions handled gracefully. Users receive sanitized messages without exposing raw system tracebacks or stack dumps.</p>
+            </div>
+
+            <div class="security-card">
+              <div class="sec-card-header">
+                <span class="sec-icon">📋</span>
+                <h4>2. Schema & Field Validation</h4>
+              </div>
+              <p>Ensures required columns exist (<code>timestamp</code>, <code>module</code>, <code>event_type</code>, <code>status</code>, <code>duration_ms</code>).</p>
+            </div>
+
+            <div class="security-card">
+              <div class="sec-card-header">
+                <span class="sec-icon">🔢</span>
+                <h4>3. Data Type Validation</h4>
+              </div>
+              <p>Coerces numeric fields and parses ISO timestamps. Rejects corrupted rows with invalid date formats or malformed types.</p>
+            </div>
+
+            <div class="security-card">
+              <div class="sec-card-header">
+                <span class="sec-icon">🚫</span>
+                <h4>4. Duration Boundary Check</h4>
+              </div>
+              <p>Enforces <code>duration_ms &ge; 0</code>. Negative durations (physically impossible) are rejected as corrupted or tampered data.</p>
+            </div>
+
+            <div class="security-card">
+              <div class="sec-card-header">
+                <span class="sec-icon">⚠️</span>
+                <h4>5. Duplicate Row Warnings</h4>
+              </div>
+              <p>Detects exact duplicate entries and triggers a warning banner without halting execution or exposing sensitive logs.</p>
+            </div>
+
+            <div class="security-card">
+              <div class="sec-card-header">
+                <span class="sec-icon">📝</span>
+                <h4>6. Privacy-First Audit Logging</h4>
+              </div>
+              <p>Logs only metadata (timestamps and filter criteria). No passwords, API keys, IP addresses, or personal identifiers are stored.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="main-footer">
+      <p>Lab Activity Monitor &mdash; Security Analytics &copy; 2026</p>
+    </footer>
+
+  </div>
+</div>
+
+<script src="/static/dashboard.js"></script>
+</body>
+</html>
