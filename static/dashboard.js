@@ -1,6 +1,6 @@
 /* ========================================================
    Lab Activity Monitor — Enterprise JavaScript Controller
-   Pure vanilla JS for UI rendering, dynamic filtering & charts.
+   Pure vanilla JS for UI rendering, theme toggle & charts.
    ======================================================== */
 
 'use strict';
@@ -12,11 +12,51 @@ let durationChartInstance = null;
 // Global Cache
 let rawDataCache = null;
 
-// DOM Helper functions
+// DOM Helpers
 function $(id) { return document.getElementById(id); }
 function show(id) { $(id).classList.remove('hidden'); }
 function hide(id) { $(id).classList.add('hidden'); }
 function setText(id, text) { $(id).textContent = text; }
+
+// ---------------------------------------------------------
+// Theme Switcher (Bright / Light mode default & Dark toggle)
+// ---------------------------------------------------------
+function initTheme() {
+  const savedTheme = localStorage.getItem('lab_monitor_theme') || 'light';
+  applyTheme(savedTheme);
+
+  const themeBtn = $('theme-toggle-btn');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      applyTheme(newTheme);
+      localStorage.setItem('lab_monitor_theme', newTheme);
+      
+      // Re-render charts with updated theme colors
+      if (rawDataCache && rawDataCache.module_stats) {
+        renderCharts(rawDataCache.module_stats);
+      }
+    });
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const sunIcon = $('theme-icon-sun');
+  const moonIcon = $('theme-icon-moon');
+  const label = $('theme-label');
+
+  if (theme === 'dark') {
+    if (sunIcon) sunIcon.classList.remove('hidden');
+    if (moonIcon) moonIcon.classList.add('hidden');
+    if (label) label.textContent = 'Bright Mode';
+  } else {
+    if (sunIcon) sunIcon.classList.add('hidden');
+    if (moonIcon) moonIcon.classList.remove('hidden');
+    if (label) label.textContent = 'Dark Mode';
+  }
+}
 
 // Status Tag Generator
 function getStatusTag(status, type = 'status') {
@@ -317,6 +357,10 @@ function renderCharts(moduleStats) {
   const errorRates = moduleStats.map(m => m.error_rate);
   const avgDurations = moduleStats.map(m => m.average_duration_ms);
 
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gridColor = isDark ? '#1e293b' : '#e2e8f0';
+  const tickColor = isDark ? '#64748b' : '#475569';
+
   // Chart 1: Module Error Rate (%)
   const ctx1 = $('error-rate-chart').getContext('2d');
   if (errorRateChartInstance) errorRateChartInstance.destroy();
@@ -328,8 +372,8 @@ function renderCharts(moduleStats) {
       datasets: [{
         label: 'Error Rate (%)',
         data: errorRates,
-        backgroundColor: errorRates.map(r => r > 5 ? 'rgba(239, 68, 68, 0.85)' : 'rgba(16, 185, 129, 0.85)'),
-        borderColor: errorRates.map(r => r > 5 ? 'rgba(239, 68, 68, 1)' : 'rgba(16, 185, 129, 1)'),
+        backgroundColor: errorRates.map(r => r > 5 ? (isDark ? 'rgba(239, 68, 68, 0.85)' : 'rgba(220, 38, 38, 0.85)') : (isDark ? 'rgba(16, 185, 129, 0.85)' : 'rgba(5, 150, 105, 0.85)')),
+        borderColor: errorRates.map(r => r > 5 ? (isDark ? 'rgba(239, 68, 68, 1)' : 'rgba(220, 38, 38, 1)') : (isDark ? 'rgba(16, 185, 129, 1)' : 'rgba(5, 150, 105, 1)')),
         borderWidth: 1,
         borderRadius: 4
       }]
@@ -346,8 +390,8 @@ function renderCharts(moduleStats) {
         }
       },
       scales: {
-        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } } },
-        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 11 } }, beginAtZero: true }
+        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Inter', size: 11 } } },
+        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'JetBrains Mono', size: 11 } }, beginAtZero: true }
       }
     }
   });
@@ -363,8 +407,8 @@ function renderCharts(moduleStats) {
       datasets: [{
         label: 'Avg Duration (ms)',
         data: avgDurations,
-        backgroundColor: 'rgba(59, 130, 246, 0.85)',
-        borderColor: 'rgba(59, 130, 246, 1)',
+        backgroundColor: isDark ? 'rgba(59, 130, 246, 0.85)' : 'rgba(37, 99, 235, 0.85)',
+        borderColor: isDark ? 'rgba(59, 130, 246, 1)' : 'rgba(37, 99, 235, 1)',
         borderWidth: 1,
         borderRadius: 4
       }]
@@ -381,8 +425,8 @@ function renderCharts(moduleStats) {
         }
       },
       scales: {
-        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } } },
-        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 11 } }, beginAtZero: true }
+        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Inter', size: 11 } } },
+        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'JetBrains Mono', size: 11 } }, beginAtZero: true }
       }
     }
   });
@@ -392,6 +436,7 @@ function renderCharts(moduleStats) {
 // Initialization & Event Listeners
 // ---------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initNavigation();
 
   // Refresh Button
